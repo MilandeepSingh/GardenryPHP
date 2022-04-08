@@ -1,6 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<?php
+    $host = 'localhost:3306';
+    $user = 'root';
+    $pass = '';
+    $conn = mysqli_connect($host, $user, $pass);
+    if(!$conn){
+    die('Could not connect: '.mysqli_connect_error());
+    }
+    
+    $dbname = "GardenryPHP";
+    $conn->query("create database if not exists ".$dbname.";");
+    $conn->query("use ".$dbname);
+
+    $sql = "create table if not exists AllPlants(plantname varchar(255) , sciname varchar(255), primary key(plantname));";
+    $conn->query($sql);
+
+    $sql = "select * from AllPlants;";
+
+    $retval=$conn->query($sql);
+    print_r($retval)
+
+    // if(mysqli_num_rows($retval) > 0){
+    //   while($row = mysqli_fetch_assoc($retval)){
+    //   echo "EMP ID :{$row['EMPLOYEE_ID']} <br> ".
+    //   "EMP LNAME : {$row['LAST_NAME']} <br> ".
+    //   "--------------------------------<br>";
+    // }
+    // }else{
+    //   echo "0 results";
+    // }
+
+?>
+
+
+
+
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -10,6 +46,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="maincss.css">
     <title>All Plants</title>
 
     <style>
@@ -53,57 +90,25 @@ html {
 
 <div id='bag' class="container-fluid">
   <div class="row" id="r">
-
+    <?php
+      if(mysqli_num_rows($retval) > 0){
+        while($row = mysqli_fetch_assoc($retval)){
+        $src_tag = "src='images/".strtolower($row['plantname']).'.jpg'."'";
+        echo "<div class='col'>".
+        "<div class='imgCell'>".
+        "<img ".$src_tag." alt='Image' class='fill'>".
+        "</div>".
+        $row["plantname"].'('.$row['sciname'].')'.
+        "</div>";
+      }
+      }else{
+        echo "0 results";
+      }
+    ?>
   </div>
 </div>
 
-<script>
-
-$(document).ready(function() {
-  let xhr = new XMLHttpRequest();
-xhr.open('get', 'http://localhost:3001/allplants');
-xhr.send();
-
-xhr.onload = function() {
-  var obj = JSON.parse(xhr.response);
-  for(let i=0; i<obj.length; i++){
-  let name = obj[i].plantname
-  let sciname = obj[i].sciname
-  addNewObj(name+'('+sciname+')', 'images/'+name.toLowerCase()+'.jpg')
-  }
-}
-});
-
-
-  function addNewObj(name, image){
-
-    var d0 = document.createElement("div");
-    var d1 = document.createElement("div");
-    var img = document.createElement("img");
-    var text = document.createTextNode(name);
-
-    img.setAttribute('class', 'fill');
-    img.setAttribute('src', image)
-    img.setAttribute('alt', 'Image')
-
-    d0.setAttribute("class","col");
-    d1.setAttribute("class", 'imgCell');
-
-    d1.appendChild(img);
-    d0.appendChild(d1);
-    d0.appendChild(text);
-
-    // d.innerHTML= '<div class="col">'+
-    //   '<div class="imgCell">'+
-    //     '<img class="fill" src="images/customer-service.jpg" alt="Image">'+
-    //   '</div>'+
-    //   'Plant name'+
-    // '</div>'
-    
-    document.getElementById('r').appendChild(d0);
-  }
-
-</script>
+  
 
 
 </body>
