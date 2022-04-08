@@ -10,22 +10,22 @@
       <ul class="navbar-nav mr-auto">
         <li></li>
         <li class="nav-item active">
-          <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+          <a class="nav-link" href="../index.php">Home <span class="sr-only">(current)</span></a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="Templates/MyPlants.html">My Plants</a>
+          <a class="nav-link" href="MyPlants.php">My Plants</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="Templates/AllPlants.html">All Plants</a>
+          <a class="nav-link" href="AllPlants.php">All Plants</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="Templates/NewPlant.html">New Plant</a>
+          <a class="nav-link" href="NewPlant.php">New Plant</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="Templates/notes.html">My Notes</a>
+          <a class="nav-link" href="notes.php">My Notes</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="Templates/newNote.html">New Note</a>
+          <a class="nav-link" href="newNote.php">New Note</a>
         </li>
       </ul>
     </div>
