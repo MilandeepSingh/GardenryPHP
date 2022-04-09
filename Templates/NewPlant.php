@@ -1,6 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
 
+
+<?php
+         
+
+    $host = 'localhost:3306';
+    $user = 'root';
+    $pass = '';
+    $conn = mysqli_connect($host, $user, $pass);
+    if(!$conn){
+    die('Could not connect: '.mysqli_connect_error());
+    }
+    
+       
+
+    $dbname = "GardenryPHP";
+
+    $conn->query("create database if not exists ".$dbname.";");
+    $conn->query("use ".$dbname);
+
+    $qtyerror="";
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+      if (empty($_POST['qty']) || $_POST['qty']<=0) {
+        $qtyerror = " * Invalid Quantity: ".$_POST['qty'];
+        }
+      else{
+        $plantname = $_POST['plantname'];
+        $qty = $_POST['qty'];
+        $sql = "insert into MyPlants values('".$plantname."',".$qty.");";
+        $conn->query($sql);
+        header('Location: MyPlants.php');
+      }
+      }
+
+    $sql = "create table if not exists AllPlants(plantname varchar(255) , sciname varchar(255), primary key(plantname));";
+    $conn->query($sql);
+
+    $sql = "create table if not exists MyPlants(plantname varchar(255) , qty int, primary key(plantname));";
+    $conn->query($sql);
+
+    $sql = "select * from AllPlants;";
+    $retval_all=$conn->query($sql);
+
+    $sql = "select * from MyPlants;";
+    $retval_my=$conn->query($sql);
+    
+    $arr_all = array();
+
+    while($row = mysqli_fetch_assoc($retval_all)){
+      array_push($arr_all, $row['plantname']);
+    }
+
+    $arr_my = array();
+
+    while($row = mysqli_fetch_assoc($retval_my)){
+      array_push($arr_my, $row['plantname']);
+    }
+
+    $reqd_arr = array_diff($arr_all, $arr_my);
+
+    // if(mysqli_num_rows($retval) > 0){
+    //   while($row = mysqli_fetch_assoc($retval)){
+    //   echo "EMP ID :{$row['EMPLOYEE_ID']} <br> ".
+    //   "EMP LNAME : {$row['LAST_NAME']} <br> ".
+    //   "--------------------------------<br>";
+    // }
+    // }else{
+    //   echo "0 results";
+    // }
+
+?>
+
+
+
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -59,7 +132,7 @@ label {
         Got a new plant? add that to your plants...
 </h1>
 
-<form style="background-color: whitesmoke; width: 60%; display: inline-block; margin-top: 30px; background-color: rgba(0,0,0,0.5);">
+<form action="NewPlant.php" method="POST" style="background-color: whitesmoke; width: 60%; display: inline-block; margin-top: 30px; background-color: rgba(0,0,0,0.5);">
   
   <div style="color: white; font-size: 35px; font-weight: bold; margin-top: 20px;">
     New Plant
@@ -70,84 +143,20 @@ label {
   
 </div>
 <div style="float: right; text-align: left;"></div>
-  <select name="plant" id="plant" style="font-size: 24px;margin-top: 35px; width: 47%;">
-  </select><br>
-
-  <script>
-    var allplants_list=[];
-    var myPlants_list=[];
-    $(document).ready(function() {
-      let xhr = new XMLHttpRequest();
-    xhr.open('get', 'http://localhost:3001/allplants');
-    xhr.send();
-
-    xhr.onload = function() {
-      var obj = JSON.parse(xhr.response);
-      for(let i=0; i<obj.length; i++){
-      let name = obj[i].plantname
-        allplants_list.push(name);
-      }
-    }
-
-    let xhr1 = new XMLHttpRequest();
-    xhr1.open('get', 'http://localhost:3001/myplants');
-    xhr1.send();
-
-    xhr1.onload = function() {
-      var obj = JSON.parse(xhr1.response);
-      for(let i=0; i<obj.length; i++){
-      let name = obj[i].plantname
-        myPlants_list.push(name);
-      }
-    }
-
-    setTimeout(function(){
-    var diff = allplants_list.filter(x => !myPlants_list.includes(x));
-    const s = document.getElementById("plant");
-    for(let i=0; i<diff.length; i++){
-      var option = document.createElement("option");
-      option.text = diff[i];
-      option.value = diff[i];
-      s.add(option);
-    }}, 1500)
-
-
-    });
-
-  </script>
-  
+  <select name="plantname" id="plant" style="font-size: 24px;margin-top: 35px; width: 47%;">
+  <?php
+  foreach($reqd_arr as $ele){
+    echo "<option>".$ele."</option>";
+  }
+  ?>
+  </select><br> 
 
   
-  <input id="qty" type="number" style="margin-top: 30px; margin-bottom: 30px; width: 45%; font-size: 24px;">
+  <input id="qty" name="qty" type="number" style="margin-top: 30px; margin-bottom: 30px; width: 45%; font-size: 24px;"><span style="color:red;"><?php echo $qtyerror; ?></span>
   </div>
 
-  
-  <script>
-    function doAct(){
-        $(document).ready(function() {
-let xhr = new XMLHttpRequest();
-
-var act = "http://localhost:3001/newPlant"
-        var plant = document.getElementById("plant").value;
-        var qty = document.getElementById("qty").value;
-        if(qty.replaceAll('\n','').trim()=="" || parseInt(qty)<=0){
-          console.log("Quantity Invalid!")
-          return;
-        }
-        var url = new URL(act);
-        url.searchParams.set('plant', plant);
-        url.searchParams.set('qty', parseInt(qty))
-        console.log(url)
-        console.log(url.toString())
-
-xhr.open('get', url.toString());
-xhr.send();
-window.location.href = "./MyPlants.html";
-})};
-  </script>
-
   <br>
-  <input id="add" type="button" onclick="doAct()" value="Add" style="margin-bottom: 30px; font-weight: bold; width: 15%; min-width: 80px; padding-top: 2%; padding-bottom: 2%; ">
+  <input id="add" type="submit"  value="Add" style="margin-bottom: 30px; font-weight: bold; width: 15%; min-width: 80px; padding-top: 2%; padding-bottom: 2%; ">
 
 </form>
 

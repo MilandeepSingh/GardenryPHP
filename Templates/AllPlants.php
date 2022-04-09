@@ -20,7 +20,6 @@
     $sql = "select * from AllPlants;";
 
     $retval=$conn->query($sql);
-    print_r($retval)
 
     // if(mysqli_num_rows($retval) > 0){
     //   while($row = mysqli_fetch_assoc($retval)){

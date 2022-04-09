@@ -1,6 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<?php
+    $host = 'localhost:3306';
+    $user = 'root';
+    $pass = '';
+    $conn = mysqli_connect($host, $user, $pass);
+    if(!$conn){
+    die('Could not connect: '.mysqli_connect_error());
+    }
+    
+    $dbname = "GardenryPHP";
+    $conn->query("create database if not exists ".$dbname.";");
+    $conn->query("use ".$dbname);
+
+    $sql = "create table if not exists MyPlants(plantname varchar(255) , qty int, primary key(plantname));";
+    $conn->query($sql);
+
+    $sql = "select * from MyPlants;";
+
+    $retval=$conn->query($sql);
+
+    // if(mysqli_num_rows($retval) > 0){
+    //   while($row = mysqli_fetch_assoc($retval)){
+    //   echo "EMP ID :{$row['EMPLOYEE_ID']} <br> ".
+    //   "EMP LNAME : {$row['LAST_NAME']} <br> ".
+    //   "--------------------------------<br>";
+    // }
+    // }else{
+    //   echo "0 results";
+    // }
+
+?>
+
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -10,6 +42,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="maincss.css">
     
   <title>My Plants</title>
 
@@ -48,12 +81,28 @@ html {
 
 <h2 style="font-size:22px; color: white; text-align: center; margin-top: 80px; margin-bottom: 30px;">
         Manage your precious plant collection here...
+        <?php
+        if(mysqli_num_rows($retval)==0){
+          echo "<br><br>Go to New Plant to add your first plants...";
+        }
+
+        ?>
 </h2>
 
 <div id='bag' class="container-fluid">
   <div class="row" id="r">
    
-    
+  <?php
+        while($row = mysqli_fetch_assoc($retval)){
+        $src_tag = "src='images/".strtolower($row['plantname']).'.jpg'."'";
+        echo "<div class='col'>".
+        "<div class='imgCell'>".
+        "<img ".$src_tag." alt='Image' class='fill'>".
+        "</div>".
+        $row["plantname"].'('.$row['qty'].')'.
+        "</div>";
+      }
+    ?>
 
   </div>
 
@@ -61,55 +110,6 @@ html {
 
 <!-- <button onclick="addNewObj('Dummy Plant', 'images/dummy.png')">DUMMY PLANT</button> -->
 
-<script>
- 
-$(document).ready(function() {
-  let xhr = new XMLHttpRequest();
-xhr.open('get', 'http://localhost:3001/myplants');
-xhr.send();
-
-xhr.onload = function() {
-  var obj = JSON.parse(xhr.response);
-  for(let i=0; i<obj.length; i++){
-  let name = obj[i].plantname
-  let qty = obj[i].qty
-  addNewObj(name+'('+qty+')', 'images/'+name.toLowerCase()+ '.jpg');
-  }
-}
-});
-
-
-  function addNewObj(name, image){
-
-
-  var d0 = document.createElement("div");
-    var d1 = document.createElement("div");
-    var img = document.createElement("img");
-
-    var text = document.createTextNode(name);
-
-    img.setAttribute('class', 'fill');
-    img.setAttribute('src', image)
-    img.setAttribute('alt', 'Image')
-
-    d0.setAttribute("class","col");
-    d1.setAttribute("class", 'imgCell');
-
-    d1.appendChild(img);
-    d0.appendChild(d1);
-    d0.appendChild(text);
-
-    // d.innerHTML= '<div class="col">'+
-    //   '<div class="imgCell">'+
-    //     '<img class="fill" src="images/customer-service.jpg" alt="Image">'+
-    //   '</div>'+
-    //   'Plant name'+
-    // '</div>'
-    
-    document.getElementById('r').appendChild(d0);
-    
-  }
-</script>
 
 </body>
 </html>
