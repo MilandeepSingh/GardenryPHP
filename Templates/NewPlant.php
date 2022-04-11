@@ -1,9 +1,16 @@
+<?php 
+  session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 
 
 <?php
-         
+    
+    if(!isset($_SESSION['email'])){
+      header("Location: login.php");
+      exit();
+    }
 
     $host = 'localhost:3306';
     $user = 'root';
@@ -28,7 +35,7 @@
       else{
         $plantname = $_POST['plantname'];
         $qty = $_POST['qty'];
-        $sql = "insert into MyPlants values('".$plantname."',".$qty.");";
+        $sql = "insert into MyPlants values('".$plantname."',".$qty.",'".$_SESSION['email']."');";
         $conn->query($sql);
         header('Location: MyPlants.php');
       }
@@ -37,13 +44,13 @@
     $sql = "create table if not exists AllPlants(plantname varchar(255) , sciname varchar(255), primary key(plantname));";
     $conn->query($sql);
 
-    $sql = "create table if not exists MyPlants(plantname varchar(255) , qty int, primary key(plantname));";
+    $sql = "create table if not exists MyPlants(plantname varchar(255) , qty int, email varchar(255), primary key(plantname, email), FOREIGN KEY (email) REFERENCES Users(email));";
     $conn->query($sql);
 
     $sql = "select * from AllPlants;";
     $retval_all=$conn->query($sql);
 
-    $sql = "select * from MyPlants;";
+    $sql = "select * from MyPlants where email='".$_SESSION['email']."';";
     $retval_my=$conn->query($sql);
     
     $arr_all = array();

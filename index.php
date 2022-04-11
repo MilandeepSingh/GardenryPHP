@@ -1,3 +1,6 @@
+<?php 
+  session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -94,6 +97,28 @@ body {
         <li class="nav-item">
           <a class="nav-link" href="Templates/newNote.php">New Note</a>
         </li>
+      </ul>
+      <ul class="navbar-nav justify-content-end">
+        <?php
+        if (!isset($_SESSION['email'])){
+          echo '<li class="nav-item">
+          <a class="nav-link" href="Templates/login.php">Login</a>
+          </li>
+          <li class="nav-item">
+          <a class="nav-link" href="Templates/register.php">Register</a>
+          </li>';
+        }
+        else{
+          echo '<li class="nav-item">
+          <a class="nav-link">'.$_SESSION['email'].'</a>
+          </li>
+          <li class="nav-item">
+          <a class="nav-link" href="Templates/logout.php">Logout</a>
+          </li>
+          ';
+        }
+
+        ?>
       </ul>
     </div>
   </nav>

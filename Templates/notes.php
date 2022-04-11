@@ -1,7 +1,16 @@
+<?php 
+  session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 
 <?php
+
+    if(!isset($_SESSION['email'])){
+      header("Location: login.php");
+      exit();
+    }
+
     $host = 'localhost:3306';
     $user = 'root';
     $pass = '';
@@ -14,10 +23,10 @@
     $conn->query("create database if not exists ".$dbname.";");
     $conn->query("use ".$dbname);
 
-    $sql = "create table if not exists Notes(note varchar(1000), sma timestamp, primary key(sma));";
+    $sql = "create table if not exists Notes(note varchar(1000), sma timestamp, email varchar(255), primary key(sma), foreign key(email) references Users(email));";
     $conn->query($sql);
 
-    $sql = "select * from Notes order by sma desc;";
+    $sql = "select * from Notes where email='".$_SESSION['email']."' order by sma desc;";
 
     $retval=$conn->query($sql);
 
@@ -79,23 +88,19 @@ html {
   <div class="row" id="r">
 
   <?php
-
     while($row = mysqli_fetch_assoc($retval)){
       echo '<div class="col">'.
         '<div class="noteCell">'.
         $row['note'].
         '</div>'.
         '<div style="text-align: right; width: 100%; color: blanchedalmond;">'.
-          $row['sma'].
+        $row['sma'].
       '</div>'.
       '</div>';
       };
-
     ?>
-    
 
   </div>
-
 </div>
   
 </body>

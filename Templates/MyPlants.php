@@ -1,7 +1,18 @@
+<?php 
+  session_start();
+?>
+<script>
+  var selected="";
+  var qty=0;
+</script>
 <!DOCTYPE html>
 <html lang="en">
 
 <?php
+    if(!isset($_SESSION['email'])){
+      header("Location: login.php");
+      exit();
+    }
     $host = 'localhost:3306';
     $user = 'root';
     $pass = '';
@@ -14,11 +25,10 @@
     $conn->query("create database if not exists ".$dbname.";");
     $conn->query("use ".$dbname);
 
-    $sql = "create table if not exists MyPlants(plantname varchar(255) , qty int, primary key(plantname));";
+    $sql = "create table if not exists MyPlants(plantname varchar(255) , qty int, email varchar(255), primary key(plantname, email), FOREIGN KEY (email) REFERENCES Users(email));";
     $conn->query($sql);
 
-    $sql = "select * from MyPlants;";
-
+    $sql = "select * from MyPlants where email='".$_SESSION['email']."';";
     $retval=$conn->query($sql);
 
     // if(mysqli_num_rows($retval) > 0){
@@ -95,20 +105,62 @@ html {
   <?php
         while($row = mysqli_fetch_assoc($retval)){
         $src_tag = "src='images/".strtolower($row['plantname']).'.jpg'."'";
-        echo "<div class='col'>".
+        echo "<div class='col' id='".$row['plantname']."'>".
         "<div class='imgCell'>".
         "<img ".$src_tag." alt='Image' class='fill'>".
         "</div>".
         $row["plantname"].'('.$row['qty'].')'.
         "</div>";
-      }
-    ?>
+      
+    
+
+        echo '<script>
+            $("#'.$row['plantname'].'").click(function(){
+              selected = "'.$row['plantname'].'";
+              qty = '.$row['qty'].';
+              $("#exampleModal").modal("show");
+              document.getElementById("plantname").value = selected;
+              document.getElementById("heading").innerHTML = selected;
+              document.getElementById("qty").value = qty;
+            })
+        </script>';
+
+  }
+
+?>
 
   </div>
 
 </div>
 
 <!-- <button onclick="addNewObj('Dummy Plant', 'images/dummy.png')">DUMMY PLANT</button> -->
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    
+    <div class="modal-content">
+    <form action="modifyQuantity.php" method="POST">
+      <div class="modal-header">
+        <h5 class="modal-title" id="heading"></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      
+      <input type="hidden" id="plantname" name="plantname" value="demo">
+      <div class="modal-body" id="main">
+        <span>New quantity: </span><input type="number" placeholder="Enter new quantity" name="qty" id="qty">
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary">Save changes</button>
+      </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 
 
 </body>

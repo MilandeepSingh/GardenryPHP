@@ -1,7 +1,15 @@
+<?php 
+  session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 
 <?php
+    if(!isset($_SESSION['email'])){
+      header("Location: login.php");
+      exit();
+    }
+
     $host = 'localhost:3306';
     $user = 'root';
     $pass = '';
@@ -14,7 +22,7 @@
     $conn->query("create database if not exists ".$dbname.";");
     $conn->query("use ".$dbname);
 
-    $sql = "create table if not exists Notes(note varchar(1000), sma timestamp, primary key(sma));";
+    $sql = "create table if not exists Notes(note varchar(1000), sma timestamp, email varchar(255), primary key(sma), foreign key(email) references Users(email));";
     $conn->query($sql);
 
     $note_error="";
@@ -24,7 +32,7 @@
       }
       else{
         $note = $_POST['note'];
-        $sql = "insert into Notes values('".$note."', CURRENT_TIMESTAMP);";
+        $sql = "insert into Notes values('".$note."', CURRENT_TIMESTAMP, '".$_SESSION['email']."');";
         $conn->query($sql);
         header('Location: notes.php');
       }
@@ -100,13 +108,13 @@ label {
 
 
     
-<h2 style="font-size:28px; color: white; text-align: center; margin-top: 80px;">
+<h3 style="font-size:28px; color: white; text-align: center; margin-top: 80px;">
         Got a huge harvest? write it in a note...
-</h2>
+</h3>
 
-<form method="POST" action="newNote.php" style="background-color: whitesmoke; width: 60%; display: inline-block; margin-top: 30px; text-align: center; background-color: rgba(0,0,0,0.5);">
+<form method="POST" action="newNote.php" style="background-color: whitesmoke; width: 60%; display: inline-block; margin-top: 15px; text-align: center; background-color: rgba(0,0,0,0.5);">
   
-   <label for="note" style="width: 90%; font-size: 30px; font-weight: bold; margin-top: 20px; text-align: center; color: white;">
+   <label for="note" style="width: 90%; font-size: 30px; font-weight: bold; margin-top: 0px; text-align: center; color: white;">
     Write your note here :
     </label>
 
@@ -118,12 +126,11 @@ label {
         <button type="button" onclick="reset()" style="margin-bottom: 30px; font-weight: bold; width: 15%; min-width: 90px; padding-top: 2%; padding-bottom: 2%; float: left; margin-left: 28%;">CLEAR</button>
         <button type="submit" style="margin-bottom: 30px; font-weight: bold; width: 15%; min-width: 90px; padding-top: 2%; padding-bottom: 2%; float: right; margin-right: 28%;">ADD</button>
     
-        <script>
-
+    <script>
       function reset(){
         document.getElementById("noteArea").value=""
       }
-      </script>
+    </script>
     
         </div>
  
